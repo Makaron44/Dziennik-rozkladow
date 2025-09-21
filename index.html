@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Dziennik Rozkładów Tarota</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="pwa-icons/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="pwa-icons/apple-touch-icon-180.png">
+  <meta name="theme-color" content="#151522" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="logo">🔮</span><h1>Dziennik Rozkładów Tarota</h1></div>
+    <div class="actions">
+      <button id="themeToggle" title="Tryb jasny/ciemny">🌙</button>
+      <button id="installBtn" title="Zainstaluj jako PWA" style="display:none">⬇️</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- TALIA -->
+    <section class="card section">
+      <h2>📂 Wczytaj swoją talię</h2>
+      <p class="muted">Wgraj ZIP z obrazami kart (JPG/PNG) albo wybierz wiele obrazów. Miniatury pojawią się poniżej.</p>
+      <input type="file" id="deckZip"   accept=".zip" />
+      <div class="muted" style="margin:.4rem 0">lub</div>
+      <input type="file" id="deckImgs"  accept=".png,.jpg,.jpeg,.gif,.webp" multiple />
+      <div id="deckInfo" class="muted"></div>
+    </section>
+
+    <!-- ROZKŁADY + KREATOR -->
+    <section class="card section">
+      <h2>✨ Wybierz rozkład</h2>
+      <div class="spread-buttons" id="spreadBtns">
+        <button class="btn" data-spread="threeCards">3 Karty (Przeszłość / Teraźniejszość / Przyszłość)</button>
+        <button class="btn" data-spread="cross">Mini Krzyż (Sytuacja / Wyzwanie / Rada / Wynik)</button>
+      </div>
+
+      <details class="designer">
+        <summary>🧩 Kreator rozkładów (stwórz własny)</summary>
+        <div class="designer-grid">
+          <label>
+            <span>Nazwa rozkładu</span>
+            <input id="dName" type="text" placeholder="np. 5 kart – decyzja">
+          </label>
+
+          <label>
+            <span>Typ układu</span>
+            <select id="dType">
+              <option value="line-h">Linia pozioma</option>
+              <option value="line-v">Linia pionowa</option>
+              <option value="grid">Siatka (grid)</option>
+            </select>
+          </label>
+
+          <label id="dSlotsWrap">
+            <span>Liczba slotów</span>
+            <input id="dSlots" type="number" min="1" max="12" value="3">
+          </label>
+
+          <div id="dGridWrap" class="hidden grid-rc">
+            <label>
+              <span>Rzędy</span>
+              <input id="dRows" type="number" min="1" max="6" value="2">
+            </label>
+            <label>
+              <span>Kolumny</span>
+              <input id="dCols" type="number" min="1" max="6" value="3">
+            </label>
+          </div>
+
+          <label class="full">
+            <span>Etykiety slotów (po jednej w wierszu)</span>
+            <textarea id="dLabels" placeholder="np. Przeszłość&#10;Teraźniejszość&#10;Przyszłość"></textarea>
+          </label>
+
+          <div class="toolbar">
+            <button class="btn primary" id="dSave">Zapisz rozkład</button>
+          </div>
+
+          <div id="dList" class="custom-list"></div>
+        </div>
+      </details>
+
+      <div id="spread" class="spread-placeholder"><div class="ghost">Wybierz rozkład powyżej</div></div>
+
+      <div class="toolbar">
+        <button class="btn subtle" id="clearSpread">Wyczyść rozkład</button>
+        <label class="switch">
+          <input type="checkbox" id="reversedMode" />
+          <span>Ustawiaj <b>odwrócone</b> (po zaznaczeniu slotu)</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- GALERIA -->
+    <section class="card section">
+      <h2>🖼️ Galeria talii (kliknij, by wstawić do wybranego slotu)</h2>
+      <div id="gallery" class="gallery empty">Galeria jest pusta — wgraj ZIP lub wybierz obrazy.</div>
+    </section>
+
+    <!-- NOTATKI + ZAPIS -->
+    <section class="card section">
+      <h2>📝 Notatka do rozkładu</h2>
+
+      <div class="note-grid">
+        <label><span>Pytanie / Intencja</span><input id="qQuestion" type="text" placeholder="O co pytam?"></label>
+        <label><span>Kontekst</span><input id="qContext" type="text" placeholder="Sytuacja, osoby…"></label>
+        <label class="full"><span>Emocje</span><input id="qFeelings" type="text" placeholder="Co czuję?"></label>
+        <label class="full"><span>Interpretacja kart</span><textarea id="qInterpretation"></textarea></label>
+        <label class="full"><span>Wnioski</span><textarea id="qInsights"></textarea></label>
+        <label class="full"><span>Działania</span><textarea id="qActions"></textarea></label>
+        <label><span>Tagi</span><input id="qTags" type="text" placeholder="praca, relacje…"></label>
+        <label><span>Pewność</span>
+          <div class="range"><input id="qConfidence" type="range" min="0" max="100" value="70"><output id="qConfOut">70%</output></div>
+        </label>
+        <label class="full"><span>Wolne notatki</span><textarea id="noteInput" placeholder="Dodatkowe obserwacje…"></textarea></label>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn primary" id="saveReading">Zapisz rozkład do historii</button>
+        <button class="btn subtle"  id="exportJson">Eksportuj historię (JSON)</button>
+        <label class="btn subtle filelike">Importuj JSON<input type="file" id="importJson" accept="application/json" hidden /></label>
+      </div>
+    </section>
+
+    <!-- HISTORIA (akordeon) -->
+    <section class="card section">
+      <details id="historyWrap">
+        <summary>📚 Historia rozkładów (kliknij, by rozwinąć)</summary>
+        <div class="history-controls">
+          <button class="btn subtle" id="prevPage">◀</button>
+          <span id="pageInfo" class="muted"></span>
+          <button class="btn subtle" id="nextPage">▶</button>
+        </div>
+        <div id="history" class="history"></div>
+      </details>
+    </section>
+  </main>
+
+  <footer class="footer">© Podróżnik Arkanów — twój mistyczny dziennik</footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous"></script>
+  <script src="app.js"></script>
+</body>
+</html>
